@@ -1,0 +1,64 @@
+USE [MultiVentas]
+GO
+/****** Object:  StoredProcedure [dbo].[spInsertarOrdenVenta]    Script Date: 06/01/2021 01:37:49 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[spInsertarOrdenVenta]
+(@nCla_Empresa int,
+@nId_OrdenVenta int,
+@cId_Cliente varchar(70),
+@nId_CondPago int,
+@nId_Empleado int,
+@cFecha_Creacion date,
+@nStatus_OrdenVenta int,
+@cMensaje Varchar(100) OUTPUT)
+AS
+IF @nCla_Empresa = 1 OR @nCla_Empresa = 2
+  BEGIN
+    IF EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta ya existe';
+      END
+    ELSE
+  BEGIN
+    INSERT INTO OrdenVenta(Cla_Empresa,Id_OrdenVenta, Id_Cliente, Id_CondPago, Id_Empleado, Fecha_Creacion, Status_OrdenVenta)
+    VALUES (@nCla_Empresa,@nId_OrdenVenta,@cId_Cliente,@nId_CondPago,@nId_Empleado,@cFecha_Creacion,@nStatus_OrdenVenta);
+    SET @cMensaje = 'La venta se agregó con éxito.'
+  END
+END
+
+IF @nCla_Empresa = 3 OR @nCla_Empresa = 4
+  BEGIN
+    IF EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta ya existe';
+      END
+    ELSE
+  BEGIN
+    INSERT OPENQUERY (MYSQL,'SELECT Cla_Empresa,Id_OrdenVenta, Id_Cliente, Id_CondPago, Id_Empleado, Fecha_Creacion, Status_OrdenVenta from OrdenVenta')
+    VALUES (@nCla_Empresa,@nId_OrdenVenta,@cId_Cliente,@nId_CondPago,@nId_Empleado,@cFecha_Creacion,@nStatus_OrdenVenta);
+    SET @cMensaje = 'La venta se agregó con éxito.'
+  END
+END
+
+IF @nCla_Empresa = 5 OR @nCla_Empresa = 6
+  BEGIN
+    IF EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta ya existe';
+      END
+    ELSE
+  BEGIN
+    INSERT OPENQUERY (ORACLE,'SELECT Cla_Empresa,Id_OrdenVenta, Id_Cliente, Id_CondPago, Id_Empleado, Fecha_Creacion, Status_OrdenVenta from OrdenVenta')
+    VALUES (@nCla_Empresa,@nId_OrdenVenta,@cId_Cliente,@nId_CondPago,@nId_Empleado,@cFecha_Creacion,@nStatus_OrdenVenta);
+    SET @cMensaje = 'La venta se agregó con éxito.'
+  END
+END
+
+IF @@ERROR != 0
+BEGIN
+   SET @cMensaje = 'Se produjo un error al intentar agregar la venta.'
+END
+

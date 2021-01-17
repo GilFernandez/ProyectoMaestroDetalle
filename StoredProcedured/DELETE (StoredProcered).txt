@@ -1,0 +1,61 @@
+USE [MultiVentas]
+GO
+/****** Object:  StoredProcedure [dbo].[spEliminarOrdenVenta]    Script Date: 06/01/2021 04:07:27 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[spEliminarOrdenVenta]
+(@nCla_Empresa int,
+@nId_OrdenVenta int,
+@cMensaje Varchar(100) OUTPUT)
+AS
+IF @nCla_Empresa = 1 OR @nCla_Empresa = 2
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+    END
+    ELSE
+      BEGIN
+      DELETE FROM OrdenVenta
+      WHERE 
+      Id_OrdenVenta = @nId_OrdenVenta;
+
+      SET @cMensaje = 'La venta se eliminó con éxito.'
+    END
+END
+
+IF @nCla_Empresa = 3 OR @nCla_Empresa = 4
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+    END
+    ELSE
+      BEGIN
+      DELETE OPENQUERY (MYSQL,'SELECT * FROM OrdenVenta WHERE Id_OrdenVenta = @nId_OrdenVenta');
+
+      SET @cMensaje = 'La venta se eliminó con éxito.'
+    END
+END
+
+IF @nCla_Empresa = 5 OR @nCla_Empresa = 6
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+    END
+    ELSE
+      BEGIN
+      DELETE OPENQUERY (ORACLE,'SELECT * FROM OrdenVenta WHERE Id_OrdenVenta = @nId_OrdenVenta');
+
+      SET @cMensaje = 'La venta se eliminó con éxito.'
+    END
+END
+
+
+IF @@ERROR != 0
+BEGIN
+   SET @cMensaje = 'Se produjo un error al intentar eliminar.'
+END

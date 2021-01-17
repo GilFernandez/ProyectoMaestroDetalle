@@ -1,0 +1,55 @@
+USE [MultiVentas]
+GO
+/****** Object:  StoredProcedure [dbo].[spConsultarOrdenVenta]    Script Date: 06/01/2021 03:03:29 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[spConsultarOrdenVenta]
+(@nCla_Empresa int,
+ @nId_OrdenVenta int)
+AS
+IF @nCla_Empresa = 1 OR @nCla_Empresa = 2
+  BEGIN
+    SELECT
+      Cla_Empresa,
+      Id_OrdenVenta,
+      Id_Cliente,
+      Id_CondPago,
+      Id_Empleado,
+      Fecha_Creacion,
+      Status_OrdenVenta
+    FROM OrdenVenta
+    WHERE 
+      Id_OrdenVenta = @nId_OrdenVenta;
+  END
+
+IF @nCla_Empresa = 3 OR @nCla_Empresa = 4
+  BEGIN
+    SELECT 
+      Cla_Empresa,
+      Id_OrdenVenta,
+      Id_Cliente,
+      Id_CondPago,
+      Id_Empleado,
+      Fecha_Creacion,
+      Status_OrdenVenta
+    FROM OPENQUERY (MYSQL, 'SELECT * FROM OrdenVenta')
+    WHERE 
+      Id_OrdenVenta = @nId_OrdenVenta;
+  END
+
+IF @nCla_Empresa = 5 OR @nCla_Empresa = 6
+  BEGIN
+    SELECT 
+      Cla_Empresa,
+      Id_OrdenVenta,
+      Id_Cliente,
+      Id_CondPago,
+      Id_Empleado,
+      Fecha_Creacion,
+      Status_OrdenVenta
+    FROM OPENQUERY (ORACLE, 'SELECT * FROM OrdenVenta')
+    WHERE 
+      Id_OrdenVenta = @nId_OrdenVenta;
+  END

@@ -1,0 +1,111 @@
+-- INSERTAR --
+
+create procedure spInsertarOrdenVenta
+(@nCla_Empresa int,
+@nId_OrdenVenta int,
+@cId_Cliente varchar(70),
+@nId_CondPago int,
+@nId_Empleado int,
+@cFecha_Creacion date,
+@nStatus_OrdenVenta int,
+@Mensaje Varchar(100) OUTPUT)
+AS
+
+IF EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+BEGIN
+   SET @Mensaje = 'Esta venta ya existe';
+END
+ELSE
+BEGIN
+   INSERT INTO OrdenVenta(Cla_Empresa,Id_OrdenVenta, Id_Cliente, Id_CondPago, Id_Empleado, Fecha_Creacion, Status_OrdenVenta)
+   VALUES (@nCla_Empresa,@nId_OrdenVenta,@cId_Cliente,@nId_CondPago,@nId_Empleado,@cFecha_Creacion,@nStatus_OrdenVenta);
+   SET @Mensaje = 'La venta se agregó con éxito.'
+END
+
+IF @@ERROR != 0
+BEGIN
+   SET @Mensaje = 'Se produjo un error al intentar agregar la venta.'
+END
+
+-- MODIFICAR --
+
+create procedure spModificarOrdenVenta
+(@nCla_Empresa int,
+@nId_OrdenVenta int,
+@cId_Cliente varchar(70),
+@nId_CondPago int,
+@nId_Empleado int,
+@cFecha_Creacion date,
+@nStatus_OrdenVenta int,
+@Mensaje Varchar(100) OUTPUT)
+AS
+
+IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+BEGIN
+   SET @Mensaje = 'Esta venta no existe';
+END
+ELSE
+BEGIN
+   UPDATE OrdenVenta
+   SET 
+   Cla_Empresa = @nCla_Empresa,
+   Id_Cliente = @cId_Cliente,
+   Id_CondPago = @nId_CondPago,
+   Id_Empleado = @nId_Empleado,
+   Fecha_Creacion = @cFecha_Creacion,
+   Status_OrdenVenta = @nStatus_OrdenVenta
+   WHERE 
+   Id_OrdenVenta = @nId_OrdenVenta;
+
+   SET @Mensaje = 'La venta se modificó con éxito.'
+END
+
+IF @@ERROR != 0
+BEGIN
+   SET @Mensaje = 'Se produjo un error al intentar modificar.'
+END
+
+--ELIMINAR--
+
+create procedure spEliminarOrdenVenta
+(@nCla_Empresa int,
+@nId_OrdenVenta int,
+@Mensaje Varchar(100) OUTPUT)
+AS
+
+IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+BEGIN
+   SET @Mensaje = 'Esta venta no existe';
+END
+ELSE
+BEGIN
+   DELETE FROM OrdenVenta
+   WHERE 
+   Id_OrdenVenta = @nId_OrdenVenta;
+
+   SET @Mensaje = 'La venta se eliminó con éxito.'
+END
+
+IF @@ERROR != 0
+BEGIN
+   SET @Mensaje = 'Se produjo un error al intentar eliminar
+END
+
+-- CONSULTAR --
+
+create procedure spConsultarOrdenVenta
+(@nCla_Empresa int,
+@nId_OrdenVenta int)
+AS
+SELECT
+Id_OrdenVenta,
+Id_Cliente,
+Id_CondPago,
+Id_Empleado,
+Fecha_Creacion,
+Status_OrdenVenta
+FROM OrdenVenta
+WHERE 
+Id_OrdenVenta = @nId_OrdenVenta;
+
+ 

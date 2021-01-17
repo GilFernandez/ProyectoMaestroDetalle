@@ -1,0 +1,86 @@
+USE [MultiVentas]
+GO
+/****** Object:  StoredProcedure [dbo].[spModificarOrdenVenta]    Script Date: 06/01/2021 03:48:11 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[spModificarOrdenVenta]
+(
+@nCla_Empresa int,
+@nId_OrdenVenta int,
+@cId_Cliente varchar(70),
+@nId_CondPago int,
+@nId_Empleado int,
+@cFecha_Creacion date,
+@nStatus_OrdenVenta int,
+@cMensaje Varchar(100) OUTPUT)
+AS
+IF @nCla_Empresa = 1 OR @nCla_Empresa = 2
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+      END
+    ELSE
+      BEGIN
+      UPDATE OrdenVenta
+      SET 
+      Id_Cliente = @cId_Cliente,
+      Id_CondPago = @nId_CondPago,
+      Id_Empleado = @nId_Empleado,
+      Fecha_Creacion = @cFecha_Creacion,
+      Status_OrdenVenta = @nStatus_OrdenVenta
+      WHERE 
+      Id_OrdenVenta = @nId_OrdenVenta;
+
+      SET @cMensaje = 'La venta se modificó con éxito.'
+      END
+   END
+
+IF @nCla_Empresa = 3 OR @nCla_Empresa = 4
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+      END
+    ELSE
+      BEGIN
+      UPDATE OPENQUERY (MYSQL, 'SELECT Id_Cliente,Id_CondPago,Id_Empleado,Fecha_Creacion,Status_OrdenVenta from OrdenVenta WHERE Id_OrdenVenta = @nId_OrdenVenta')
+      SET 
+      Id_Cliente = @cId_Cliente,
+      Id_CondPago = @nId_CondPago,
+      Id_Empleado = @nId_Empleado,
+      Fecha_Creacion = @cFecha_Creacion,
+      Status_OrdenVenta = @nStatus_OrdenVenta;
+
+      SET @cMensaje = 'La venta se modificó con éxito.'
+      END
+   END
+
+
+IF @nCla_Empresa = 5 OR @nCla_Empresa = 6
+  BEGIN
+    IF NOT EXISTS (Select 1 from OrdenVenta Where Id_OrdenVenta = @nId_OrdenVenta)
+      BEGIN
+      SET @cMensaje = 'Esta venta no existe';
+      END
+    ELSE
+      BEGIN
+      UPDATE OPENQUERY (ORACLE, 'SELECT Id_Cliente,Id_CondPago,Id_Empleado,Fecha_Creacion,Status_OrdenVenta FROM HR.ORDENVENTA WHERE Id_OrdenVenta = @nId_OrdenVenta')
+      SET 
+      Id_Cliente = @cId_Cliente,
+      Id_CondPago = @nId_CondPago,
+      Id_Empleado = @nId_Empleado,
+      Fecha_Creacion = @cFecha_Creacion,
+      Status_OrdenVenta = @nStatus_OrdenVenta;
+
+      SET @cMensaje = 'La venta se modificó con éxito.'
+      END
+   END
+
+
+IF @@ERROR != 0
+BEGIN
+   SET @cMensaje = 'Se produjo un error al intentar modificar.'
+END
